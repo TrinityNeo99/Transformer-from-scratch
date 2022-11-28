@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+import torchtext.vocab as vocab
 
 class SelfAttention(nn.Module):
     def __init__(self, embed_size, heads):
@@ -241,7 +242,9 @@ class Transformer(nn.Module):
         self.device = device
 
     def make_src_mask(self, src):
+        print(src)
         src_mask = (src != self.src_pad_idx).unsqueeze(1).unsqueeze(2)
+        print(src_mask)
         # (N, 1, 1, src_len)
         return src_mask.to(self.device)
 
@@ -256,6 +259,8 @@ class Transformer(nn.Module):
     def forward(self, src, trg):
         src_mask = self.make_src_mask(src)
         trg_mask = self.make_trg_mask(trg)
+        print(src.shape)
+        print(src_mask.shape)
         enc_src = self.encoder(src, src_mask)
         out = self.decoder(trg, enc_src, src_mask, trg_mask)
         return out
@@ -263,8 +268,6 @@ class Transformer(nn.Module):
 
 if __name__ == "__main__":
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(device)
-
     x = torch.tensor([[1, 5, 6, 4, 3, 9, 5, 2, 0], [1, 8, 7, 3, 4, 5, 6, 7, 2]]).to(
         device
     )
@@ -278,4 +281,5 @@ if __name__ == "__main__":
         device
     )
     out = model(x, trg[:, :-1])
+    print(out)
     print(out.shape)
